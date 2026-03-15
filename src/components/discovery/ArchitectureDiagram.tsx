@@ -11,8 +11,7 @@ import ReactFlow, {
   MarkerType,
 } from "reactflow";
 import ELK from "elkjs/lib/elk.bundled.js";
-import type { ArchitectureResource } from "@/lib/api/architectureResult";
-import { inferArchitectureEdges } from "@/lib/infra/inferArchitectureEdges";
+import type { GraphNode, GraphEdge } from "@/lib/api/architectureResult";
 import { Globe, Server, Database, HardDrive, Cog } from "lucide-react";
 import "reactflow/dist/style.css";
 
@@ -26,17 +25,8 @@ const elkOptions: Record<string, string> = {
   "elk.spacing.componentComponent": "80",
 };
 
-function configDisplay(r: ArchitectureResource): string {
-  if (typeof r.config === "string") return r.config;
-  if (r.config && typeof r.config === "object") {
-    const d = (r.config as { display?: string }).display;
-    if (typeof d === "string") return d;
-  }
-  return "";
-}
-
-function pickIcon(servico: string): React.ElementType {
-  const s = servico.toLowerCase();
+function pickIcon(serviceName: string): React.ElementType {
+  const s = serviceName.toLowerCase();
   if (s.includes("frontend") || s.includes("web")) return Globe;
   if (s.includes("api")) return Server;
   if (s.includes("database") || s.includes("postgres") || s.includes("mysql"))
@@ -46,28 +36,27 @@ function pickIcon(servico: string): React.ElementType {
   return Server;
 }
 
-interface ResourceNodeData {
-  resource: ArchitectureResource;
+interface GraphNodeData {
+  node: GraphNode;
 }
 
-function ResourceNode({ data }: NodeProps<ResourceNodeData>) {
-  const { resource } = data;
-  const Icon = pickIcon(resource.servico);
-  const config = configDisplay(resource);
+function GraphNodeComponent({ data }: NodeProps<GraphNodeData>) {
+  const { node } = data;
+  const Icon = pickIcon(node.serviceName);
 
   return (
-    <div className="rounded-lg border bg-card px-3 py-2 shadow-sm min-w-[160px]">
+    <div className="min-w-[160px] rounded-lg border bg-card px-3 py-2 shadow-sm">
       <div className="flex items-center gap-2">
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
           <Icon className="h-3.5 w-3.5" />
         </div>
         <div className="min-w-0">
           <p className="truncate font-mono text-xs font-medium text-foreground">
-            {resource.servico}
+            {node.serviceName}
           </p>
-          {config && (
+          {node.configSummary && (
             <p className="line-clamp-2 text-[10px] text-muted-foreground">
-              {config}
+              {node.configSummary}
             </p>
           )}
         </div>
@@ -76,13 +65,13 @@ function ResourceNode({ data }: NodeProps<ResourceNodeData>) {
   );
 }
 
-const nodeTypes = { resource: ResourceNode };
+const nodeTypes = { resource: GraphNodeComponent };
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 56;
 
 async function getLayoutedElements(
-  nodes: Node<ResourceNodeData>[],
+  nodes: Node<GraphNodeData>[],
   edges: Edge[],
   options: Record<string, string> = elkOptions
 ) {
@@ -115,26 +104,26 @@ async function getLayoutedElements(
   };
 }
 
-interface ArchitectureVibeGraphProps {
-  recursos: ArchitectureResource[];
+interface ArchitectureDiagramProps {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
 }
 
-export default function ArchitectureVibeGraph({
-  recursos,
-}: ArchitectureVibeGraphProps) {
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
-    const inferredEdges = inferArchitectureEdges(recursos);
-
-    const nodes: Node<ResourceNodeData>[] = recursos.map((r) => ({
-      id: r.servico,
+export default function ArchitectureDiagram({
+  nodes,
+  edges,
+}: ArchitectureDiagramProps) {
+  const { initialNodes, initialEdges } = useMemo(() => {
+    const flowNodes: Node<GraphNodeData>[] = nodes.map((n) => ({
+      id: n.id,
       type: "resource",
-      data: { resource: r },
+      data: { node: n },
       position: { x: 0, y: 0 },
       sourcePosition: "right" as Position,
       targetPosition: "left" as Position,
     }));
 
-    const edges: Edge[] = inferredEdges.map((e, i) => ({
+    const flowEdges: Edge[] = edges.map((e, i) => ({
       id: `edge-${i}`,
       source: e.source,
       target: e.target,
@@ -143,30 +132,30 @@ export default function ArchitectureVibeGraph({
       style: { stroke: "hsl(var(--border))", strokeWidth: 1.5 },
     }));
 
-    return { nodes, edges };
-  }, [recursos]);
+    return { initialNodes: flowNodes, initialEdges: flowEdges };
+  }, [nodes, edges]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(initialNodes);
+  const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   useLayoutEffect(() => {
     if (initialNodes.length > 0) {
       getLayoutedElements(initialNodes, initialEdges).then(
         ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-          setNodes(layoutedNodes);
-          setEdges(layoutedEdges);
+          setFlowNodes(layoutedNodes);
+          setFlowEdges(layoutedEdges);
         }
       );
     }
-  }, [initialNodes, initialEdges]);
+  }, [initialNodes, initialEdges, setFlowNodes, setFlowEdges]);
 
-  if (recursos.length === 0) return null;
+  if (nodes.length === 0) return null;
 
   return (
     <div className="h-[280px] w-full min-w-0 overflow-hidden rounded-lg border bg-muted/30">
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={flowNodes}
+        edges={flowEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}

@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   getArchitectureResult,
+  toArchitectureUIData,
   type ArchitectureResult,
+  type ArchitectureUIData,
 } from "@/lib/api/discoveryClient";
-import ArchitectureVibeGraph from "./ArchitectureVibeGraph";
+import ArchitectureAnalysisPanel from "./ArchitectureAnalysisPanel";
+import EconomicArchitecturePanel from "./EconomicArchitecturePanel";
+import PerformanceArchitecturePanel from "./PerformanceArchitecturePanel";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Loader2, PiggyBank, Zap } from "lucide-react";
+import { LayoutGrid, Loader2 } from "lucide-react";
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -172,7 +176,12 @@ const DiagramsPanel = ({
     );
   }
 
-  if ((!result || (!result.vibeEconomica?.recursos?.length && !result.vibePerformance?.recursos?.length)) && canStartArchitecture) {
+  if (
+    (!result ||
+      (!result.vibeEconomica?.recursos?.length &&
+        !result.vibePerformance?.recursos?.length)) &&
+    canStartArchitecture
+  ) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
@@ -185,10 +194,7 @@ const DiagramsPanel = ({
           Clique no botão abaixo para iniciar a análise de arquitetura do seu
           projeto.
         </p>
-        <Button
-          onClick={handleStartArchitecture}
-          disabled={isStarting}
-        >
+        <Button onClick={handleStartArchitecture} disabled={isStarting}>
           {isStarting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -202,7 +208,29 @@ const DiagramsPanel = ({
     );
   }
 
-  if (!result || (!result.vibeEconomica?.recursos?.length && !result.vibePerformance?.recursos?.length)) {
+  if (
+    !result ||
+    (!result.vibeEconomica?.recursos?.length &&
+      !result.vibePerformance?.recursos?.length)
+  ) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
+          <LayoutGrid className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">
+          Nenhuma arquitetura ainda
+        </h3>
+        <p className="max-w-[260px] text-xs text-muted-foreground">
+          Complete a descoberta e inicie a arquitetura para ver as opções.
+        </p>
+      </div>
+    );
+  }
+
+  const uiData: ArchitectureUIData | null = toArchitectureUIData(result);
+
+  if (!uiData) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
@@ -221,72 +249,9 @@ const DiagramsPanel = ({
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-5">
       <div className="space-y-6">
-        {result.analiseEntrada && (
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <h4 className="text-sm font-semibold text-foreground">
-              Análise de entrada
-            </h4>
-            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-              {result.analiseEntrada}
-            </p>
-          </div>
-        )}
-
-        {result.vibeEconomica?.recursos?.length ? (
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <PiggyBank className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">
-                  Arquitetura econômica
-                </h4>
-                {result.vibeEconomica.descricao && (
-                  <p className="text-[11px] text-muted-foreground">
-                    {result.vibeEconomica.descricao}
-                  </p>
-                )}
-                {result.vibeEconomica.custo_estimado && (
-                  <p className="mt-0.5 text-[11px] font-medium text-foreground">
-                    Custo estimado: {result.vibeEconomica.custo_estimado}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="mt-4">
-              <ArchitectureVibeGraph recursos={result.vibeEconomica.recursos} />
-            </div>
-          </div>
-        ) : null}
-
-        {result.vibePerformance?.recursos?.length ? (
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <Zap className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">
-                  Arquitetura performance
-                </h4>
-                {result.vibePerformance.descricao && (
-                  <p className="text-[11px] text-muted-foreground">
-                    {result.vibePerformance.descricao}
-                  </p>
-                )}
-                {result.vibePerformance.custo_estimado && (
-                  <p className="mt-0.5 text-[11px] font-medium text-foreground">
-                    Custo estimado: {result.vibePerformance.custo_estimado}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="mt-4">
-              <ArchitectureVibeGraph recursos={result.vibePerformance.recursos} />
-            </div>
-          </div>
-        ) : null}
+        <ArchitectureAnalysisPanel analysis={uiData.analysis} />
+        <EconomicArchitecturePanel data={uiData.economy} />
+        <PerformanceArchitecturePanel data={uiData.performance} />
       </div>
     </div>
   );

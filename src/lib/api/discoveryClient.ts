@@ -171,10 +171,16 @@ export async function getTerraformFiles(projectId: string): Promise<TerraformFil
 
 export type {
   ArchitectureResult,
+  ArchitectureUIData,
+  GraphEdge,
+  GraphNode,
   RevisionOption,
   VibeOption,
 } from "./architectureResult";
-export { adaptArchitectureResult } from "./architectureResult";
+export {
+  adaptArchitectureResult,
+  toArchitectureUIData,
+} from "./architectureResult";
 
 import { adaptArchitectureResult } from "./architectureResult";
 import type { ArchitectureResult, RevisionOption } from "./architectureResult";
