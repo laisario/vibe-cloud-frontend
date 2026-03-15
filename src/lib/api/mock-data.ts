@@ -1,0 +1,90 @@
+import type { ChatMessage, InfraService } from "./types";
+
+export const SEEDED_MESSAGES: ChatMessage[] = [
+  {
+    id: "msg_1",
+    role: "user",
+    content: "Crie infraestrutura para um app Node.js com Postgres, Redis e um bucket S3 para armazenamento de arquivos.",
+    timestamp: new Date(Date.now() - 120000),
+  },
+  {
+    id: "msg_2",
+    role: "assistant",
+    content:
+      "Analisei seus requisitos de arquitetura e gerei a infraestrutura sugerida. Aqui está o que configurei:\n\n- **Frontend App** — SPA React servido via CDN\n- **Backend API** — Serviço Node.js com auto-scaling\n- **PostgreSQL** — Banco principal com réplicas de leitura\n- **Redis Cache** — Armazenamento de sessão e cache de consultas\n- **Worker** — Processador de jobs em background\n- **Load Balancer** — Balanceador de carga da aplicação\n- **S3 Storage** — Bucket de armazenamento de arquivos\n\nVocê pode ver os serviços gerados no painel de preview. Quer que eu gere os arquivos Terraform?",
+    timestamp: new Date(Date.now() - 60000),
+  },
+];
+
+export const SEEDED_SERVICES: InfraService[] = [
+  {
+    id: "1",
+    name: "frontend-app",
+    type: "web",
+    description: "React frontend application",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$12/mo",
+  },
+  {
+    id: "2",
+    name: "backend-api",
+    type: "api",
+    description: "Node.js backend service",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$45/mo",
+  },
+  {
+    id: "3",
+    name: "postgres-db",
+    type: "database",
+    description: "Primary PostgreSQL database",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$85/mo",
+  },
+  {
+    id: "4",
+    name: "redis-cache",
+    type: "cache",
+    description: "Redis cache layer",
+    status: "down",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$25/mo",
+  },
+  {
+    id: "5",
+    name: "worker",
+    type: "worker",
+    description: "Background job processor",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$30/mo",
+  },
+  {
+    id: "6",
+    name: "load-balancer",
+    type: "load-balancer",
+    description: "Application load balancer",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$18/mo",
+  },
+  {
+    id: "7",
+    name: "s3-storage",
+    type: "storage",
+    description: "File storage bucket",
+    status: "up",
+    provider: "AWS",
+    region: "us-east-1",
+    estimatedCost: "$5/mo",
+  },
+];
