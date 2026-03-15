@@ -343,20 +343,44 @@ export function useDiscoveryChat(
         case "pong":
           break;
 
-        case "project.repo_updated":
-        case "project.repo.updated":
-        case "project_repo_updated": {
+        case "project.repo.updated": {
+          const repoUrl = (msg.data as { repo_url?: string }).repo_url;
+          if (repoUrl?.trim()) {
+            setContext((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    overview: { ...prev.overview, repo_url: repoUrl },
+                  }
+                : prev
+            );
+          }
           refetchContext();
           break;
         }
 
-        default: {
-          const t = (msg as { type?: string }).type;
-          if (typeof t === "string" && /repo.*updated|project.*repo/i.test(t)) {
-            refetchContext();
+        case "session.state_changed": {
+          const state = (msg.data as { state?: string }).state;
+          if (state) {
+            setSession((prev) =>
+              prev ? { ...prev, state: state as DiscoverySession["state"] } : prev
+            );
           }
           break;
         }
+
+        case "discovery.panel_updated": {
+          refetchContext();
+          getActivity(projectId!)
+            .then((res) => {
+              if (isMountedRef.current && res.events) setActivity(res.events);
+            })
+            .catch(() => {});
+          break;
+        }
+
+        default:
+          break;
       }
     },
     [projectId, send, pendingMessage, onPendingMessageConsumed, refetchContext]

@@ -84,8 +84,18 @@ export interface WsPong {
 }
 
 export interface WsProjectRepoUpdated {
-  type: "project.repo_updated" | "project.repo.updated" | "project_repo_updated";
+  type: "project.repo.updated";
   data: { repo_url?: string };
+}
+
+export interface WsSessionStateChanged {
+  type: "session.state_changed";
+  data: { state?: string };
+}
+
+export interface WsDiscoveryPanelUpdated {
+  type: "discovery.panel_updated";
+  data: Record<string, unknown>;
 }
 
 export type WsIncomingMessage =
@@ -102,7 +112,9 @@ export type WsIncomingMessage =
   | WsQuestionAnswered
   | WsError
   | WsPong
-  | WsProjectRepoUpdated;
+  | WsProjectRepoUpdated
+  | WsSessionStateChanged
+  | WsDiscoveryPanelUpdated;
 
 // --- Outgoing events (client -> server) ---
 export interface WsMessageCreate {
