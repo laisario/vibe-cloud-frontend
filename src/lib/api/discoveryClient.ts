@@ -78,6 +78,7 @@ export async function getProjects(): Promise<Project[]> {
 
 export interface ContextResponse {
   project?: { project_name?: string; summary?: string };
+  repo_url?: string;
   overview?: { project_type?: string; repo_url?: string };
   stack?: { languages?: string[]; frameworks?: string[] };
   understanding_summary?: {

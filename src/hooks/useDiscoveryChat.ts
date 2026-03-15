@@ -347,12 +347,7 @@ export function useDiscoveryChat(
           const repoUrl = (msg.data as { repo_url?: string }).repo_url;
           if (repoUrl?.trim()) {
             setContext((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    overview: { ...prev.overview, repo_url: repoUrl },
-                  }
-                : prev
+              prev ? { ...prev, repo_url: repoUrl } : prev
             );
           }
           refetchContext();

@@ -78,7 +78,7 @@ const DiscoveryRightPanel = ({
   const [architectureTriggered, setArchitectureTriggered] = useState(false);
 
   const hasRepoUrl = !!(
-    context?.overview?.repo_url?.trim() ||
+    context?.repo_url?.trim() ||
     checklist.find(
       (c) =>
         (c.key === "repo_url" || c.key === "repository") &&
@@ -92,7 +92,7 @@ const DiscoveryRightPanel = ({
     hasRepoUrl;
 
   const repoUrl =
-    context?.overview?.repo_url?.trim() ||
+    context?.repo_url?.trim() ||
     checklist.find(
       (c) =>
         (c.key === "repo_url" || c.key === "repository") &&

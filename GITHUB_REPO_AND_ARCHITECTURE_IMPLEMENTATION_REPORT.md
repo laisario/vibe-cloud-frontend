@@ -12,7 +12,7 @@
 
 - **Placement**: At the top of the Discovery tab content in `DiscoveryRightPanel`, above WhatWeUnderstandPanel.
 
-- **Repo URL source**: `context.overview.repo_url` first; fallback to checklist item with key `repo_url` or `repository` and status `confirmed` (evidence as URL).
+- **Repo URL source**: `context.repo_url` (top-level from API) first; fallback to checklist item with key `repo_url` or `repository` and status `confirmed` (evidence as URL).
 
 ### Architecture Tab and Button Changes
 
@@ -32,7 +32,7 @@
 
 ### Other Changes
 
-- **WhatWeUnderstandPanel**: Repo is excluded from derived items (context.overview, checklist, confirmed/inferred keys) to avoid duplication with GitHubRepoPanel. Repo is still shown when it comes from `understanding_summary` from the API.
+- **WhatWeUnderstandPanel**: Repo is excluded from derived items (context.repo_url, checklist, confirmed/inferred keys) to avoid duplication with GitHubRepoPanel. Repo is still shown when it comes from `understanding_summary` from the API.
 
 ---
 
@@ -42,7 +42,7 @@
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| `/projects/{id}/context` | GET | Project context including `overview.repo_url` |
+| `/projects/{id}/context` | GET | Project context including `repo_url` (top-level) |
 | `/projects/{id}/repo` | PATCH | Link repo: body `{ repo_url: string }` |
 | `/projects/{id}/start-architecture` | POST | Start architecture analysis |
 | `/projects/{id}/architecture-result` | GET | Diagrams/architecture result (also used for polling) |
